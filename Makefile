@@ -53,6 +53,18 @@ packages:
 	#$(PREPEND)scripts/pkg2md.sh github.com/ipfs/go-ipfs/core/coreapi v0.4.15 $(PKGDIR) go/pkg
 	#$(PREPEND)scripts/pkg2md.sh github.com/ipfs/go-ipfs/core/coreapi/interface v0.4.15 $(PKGDIR) go/pkg
 	#$(PREPEND)scripts/pkg2md.sh github.com/ipfs/go-ipfs/core/coreapi/interface/options v0.4.15 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/api v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/cmd v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/core v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/ipfs v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/mobile v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/net v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/pb v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/repo v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/repo/db v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/schema v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/storage v0.12.4 $(PKGDIR) go/pkg
+	#$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/wallet v0.12.4 $(PKGDIR) go/pkg
 
 bin/hugo:
 	@echo "Installing Hugo to $(HUGO_LOCAL)..."
