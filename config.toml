@@ -132,7 +132,7 @@ weight = 3
 [[menu.guides]]
 parent = "guides"
 name = "Selling in OpenBazaar"
-url = "https://github.com/ipfs/in-web-browsers/blob/master/ADDRESSING.md"
+url = "https://openbazaar.org/blog/The-Beginners-Guide-to-Buying-Goods-Services-and-Cryptocurrency-on-OpenBazaar/"
 [[menu.guides]]
 parent = "guides"
 name = "How to Buy Cryptocurrencies Privately with no Fees"
