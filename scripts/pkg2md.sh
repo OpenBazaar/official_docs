@@ -26,7 +26,7 @@ baseurl="$4"
 
 echo "--- building docs for $name ($basedir/$name)"
 
-if echo "$name" | grep '^go-' > /dev/null; then
+if echo "$name" | grep '^openbazaar-' > /dev/null; then
 
   # Go: get the source, run godoc2md
   #
