@@ -45,7 +45,61 @@ weight = 4
 identifier = "go_implementation"
 name = "Go Implementation"
 weight = 5
-
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /api"
+url = "/go/pkg/openbazaar-go/api"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /cmd"
+url = "/go/pkg/openbazaar-go/cmd"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /core"
+url = "/go/pkg/openbazaar-go/core"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /ipfs"
+url = "/go/pkg/openbazaar-go/ipfs"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /net"
+url = "/go/pkg/openbazaar-go/net"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /mobile"
+url = "/go/pkg/openbazaar-go/mobile"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /pb"
+url = "/go/pkg/openbazaar-go/pb"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /repo"
+url = "/go/pkg/openbazaar-go/repo"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /repo/db"
+url = "/go/pkg/openbazaar-go/repo/db"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /storage"
+url = "/go/pkg/openbazaar-go/storage"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
+name = "openbazaar-go /schema"
+url = "/go/pkg/openbazaar-go/schema"
+weight = 11
 
 
 [[menu.reference]]
