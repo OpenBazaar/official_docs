@@ -13,16 +13,14 @@ const header = `/**
 `
 
 const styles = Object.entries(theme).reduce((styles, [section, values]) => {
-  let sectionStyles = null;
+  let sectionStyles = null
   if (typeof values === 'string') {
-      sectionStyles = [`@${section}: ${values};`]
-  }
-  else if (Array.isArray(values)) {
+    sectionStyles = [`@${section}: ${values};`]
+  } else if (Array.isArray(values)) {
     sectionStyles = values.map((value, i) => `@${section}-${i}: ${value};`)
-  }
-  else {
+  } else {
     sectionStyles = Object.entries(values).map(
-        ([key, value]) => `@${section}-${key}: ${value};`)
+      ([key, value]) => `@${section}-${key}: ${value};`)
   }
   return styles.concat(sectionStyles, [''])
 }, [])
