@@ -1,4 +1,13 @@
 .DS_Store
+.vscode
+
+bin/*
 !bin/.gitkeep
-build
-node_modules
+node_modules/
+public/
+tmp/
+build/
+
+# Generated source files
+content/reference/pkg/*/
+src/styles/constants.less
