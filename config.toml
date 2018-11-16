@@ -1,0 +1,182 @@
+baseURL = "http://localhost"
+relativeURLs = true
+languageCode = "en"
+DefaultContentLanguage = "en"
+
+title = "OpenBazaar Documentation"
+
+staticDir = ["static", "build"]
+
+[params]
+editURL = "https://github.com/hoffmabc/docs/tree/master/content/"
+ordersectionsby = "weight" # ordersectionsby = "title"
+
+[outputs]
+home = [ "HTML", "RSS", "JSON"]
+
+[menu]
+
+[[menu.main]]
+identifier = "introduction"
+name = "Introduction"
+weight = 1
+
+[[menu.main]]
+identifier = "guides"
+name = "Guides"
+weight = 2
+
+[[menu.main]]
+identifier = "reference"
+name = "Reference"
+weight = 3
+
+[[menu.main]]
+identifier = "community"
+name = "Community"
+weight = 4
+
+[[menu.reference]]
+identifier = "api"
+name = "Commands & API"
+weight = 4
+
+[[menu.reference]]
+identifier = "go_implementation"
+name = "Go Implementation"
+weight = 5
+
+
+
+[[menu.reference]]
+identifier = "specs"
+name = "Specifications & Planning"
+weight = 6
+[[menu.reference]]
+parent = "specs"
+name = "OpenBazaar Third-Party Search API"
+url = "https://github.com/OpenBazaar/obips/blob/master/obip-0002.md"
+weight = 10
+[[menu.reference]]
+parent = "specs"
+name = "Escrow Smart Contract Spec"
+url = "https://openbazaar.org/blog/Escrow-Smart-Contract-Specification-in-OpenBazaar/"
+weight = 20
+[[menu.reference]]
+parent = "specs"
+name = "OBIPs"
+title = "“OpenBazaar Improvement Proposals” (OBIPs) are proposals for major modifications to protocols, library interfaces, and community processes."
+url = "https://github.com/OpenBazaar/obips"
+weight = 50
+
+[[menu.guides]]
+identifier = "guides"
+name = "Guides"
+weight = 3
+
+
+[[menu.guides]]
+parent = "guides"
+name = "Selling in OpenBazaar"
+url = "https://github.com/ipfs/in-web-browsers/blob/master/ADDRESSING.md"
+[[menu.guides]]
+parent = "guides"
+name = "How to Buy Cryptocurrencies Privately with no Fees"
+url = "https://openbazaar.org/blog/how-to-buy-cryptocurrencies-privately-with-no-fees/"
+
+[[menu.community]]
+identifier = "applications"
+name = "Applications"
+weight = 8
+[[menu.community]]
+parent = "applications"
+name = "OpenBazaar Desktop"
+title = "Desktop client application for OpenBazaar v2."
+url = "https://github.com/OpenBazaar/openbazaar-desktop"
+weight = 10
+[[menu.community]]
+parent = "applications"
+name = "OpenBazaar Server (Go)"
+title = "Golang reference implementation for OpenBazaar v2."
+url = "https://github.com/OpenBazaar/openbazaar-go"
+weight = 20
+[[menu.community]]
+parent = "applications"
+name = "OpenBazaar.com"
+title = "A web-based browser for the OpenBazaar network"
+url = "https://github.com/OpenBazaar/openbazaar.com"
+weight = 30
+[[menu.community]]
+parent = "applications"
+name = "OpenBazaar Multiwallet (Go)"
+title = "An API based multi-cryptocurrency wallet"
+url = "https://github.com/OpenBazaar/openbazaar.com"
+weight = 30
+
+[[menu.community]]
+identifier = "community"
+name = "Community"
+weight = 9
+[[menu.community]]
+parent = "community"
+name = "Slack"
+url = "https://openbazaar.org/slack"
+weight = 20
+[[menu.community]]
+parent = "community"
+name = "Events Calendar"
+url = "https://openbazaar.org/developers/"
+weight = 40
+[[menu.community]]
+parent = "community"
+name = "Community Tools"
+url = "https://openbazaar.org/developers/"
+weight = 50
+[[menu.community]]
+parent = "community"
+name = "Blog"
+url = "https://openbazaar.org/blog/"
+weight = 70
+[[menu.community]]
+parent = "community"
+name = "Youtube"
+url = "https://www.youtube.com/channel/UCnw_d1lLMFhqkL5QdsuIInQ"
+weight = 80
+[[menu.community]]
+parent = "community"
+name = "Twitter (@OpenBazaar)"
+url = "https://twitter.com/OpenBazaar"
+weight = 90
+[[menu.community]]
+parent = "community"
+name = "Awesome OpenBazaar"
+url = "https://github.com/OpenBazaar/openbazaar-awesome"
+[[menu.community]]
+parent="community"
+name = "FAQ"
+url = "https://openbazaar.zendesk.com/hc/en-us/categories/200225659-FAQ"
+
+[[menu.community]]
+identifier = "contribute"
+name = "Get Involved"
+weight = 10
+[[menu.community]]
+parent = "contribute"
+name = "GitHub"
+url = "https://github.com/OpenBazaar"
+weight = 5
+[[menu.community]]
+parent = "contribute"
+name = "Contribution Guidelines"
+url = "https://github.com/OpenBazaar/openbazaar-go/blob/master/CONTRIBUTING.md"
+weight = 10
+[[menu.community]]
+parent = "contribute"
+name = "Code of Conduct"
+url = "https://github.com/ipfs/community/blob/master/code-of-conduct.md"
+weight = 30
+[[menu.community]]
+parent = "contribute"
+name = "Go Style Guide"
+url = "https://github.com/ipfs/community/blob/master/go-code-guidelines.md"
+weight = 40
