@@ -105,7 +105,7 @@ Every OpenBazaar node has a corresponding data directory where all important use
 If user set the data directory:
   then set it explicitly
 
-Else: Get data directory path from the **Schema Manager**
+Else: Get data directory path from the **[Schema Manager](/go/pkg/openbazaar-go/schema/#NewCustomSchemaManager)**
 
 #### Clear Lock File
 Remove lock file from the data directory in case the server closed uncleanly.
@@ -145,70 +145,106 @@ Several configuration settings also are extracted from the config file:
 - If the SSL files are specified then set up SSL authentication
 
 ### Get IPFS Config
-	Call BuildCfg which creates an IPFS node config
+Retrieve the configuration file from the user's data folder. This gives you an IPFS struct of the configuration file that includes things relevant to IPFS alone and ignoring the OpenBazaar extension.
+	<!-- Call BuildCfg which creates an IPFS node config
 	Configure ipnsps if we've set usepersistentcache
-	Set a new defaultHostOption if Tor is configured because we use a new type of transport for new host connections
+	Set a new defaultHostOption if Tor is configured because we use a new type of transport for new host connections -->
 
-### IPFS Check
-- If no gateways are configured the server cannot start so error out
+### IPFS Gateway Check
+IPFS requires a gateway to be specified so that it can listen to other nodes via HTTP. If it isn't configured the node cannot start.
 
 ### Get IPFS Identity
-	Ask OB database for identity key
-	Get IPFS identity from key
+OpenBazaar stores the node's master private key in the database. We retrieve it and then send it to IPFS to turn into an IPFS Identity, which consists of a Peer ID and a Private Key.
+
+```
+// Identity tracks the configuration of the local node's identity.
+type Identity struct {
+	PeerID  string
+	PrivKey string `json:",omitempty"`
+}
+```
 
 ### Set up Testnet Settings
-	Get Testnet bootstrap nodes
-	Set protocol strings for testnet rather than mainnet
-	Clear push nodes
+Testnet and Regtest modes require some different configuration settings to be updated including:
 
-### Configure IPFS Swarm for Tor Support
-	Create Hidden Service not created
-		Tell Tor to add hidden service
-	Add onion addresses to the IPFS swarm
+- Special bootstrap nodes
+- Custom protocol strings for:
+  - DHT
+  - Bitswap
+  - OpenBazaar
 
-### Process Swarm Addresses
-	Loop through swarm addresses we're listening on and convert them to onion addresses
+### Tor Configuration
+
+#### Configure IPFS Swarm for Tor Support
+Using Tor with IPFS requires us to create a hidden service using the Tor control service. If one has not been created we go ahead and generate an onion key and get the address of our hidden service. If we already have one in our data directory then we grab it.
+
+We then need to configure the IPFS swarm to support our service by adding the onion address to our swarm addresses.
+
+*If we are operating in `Dual Stack` mode then we need to add our clearnet addresses to listen on as well as the hidden service address*
+
+#### Process Swarm Addresses
+There are two scenarios where we need to modify our swarm addresses: if we're using STUN and also UTP transport protocol and if it's an onion address.
+
+If we're using UTP STUN then we need to remove the current STUN swarm address and replace it with a proper address that uses the STUN port we found.
+
+If the address is an onion address we need to tell IPFS that we have a custom Tor transport that we need to load when starting up.
+
+Lastly if we find any addresses that don't meet the above conditions then we know we're supporting clearnet and need to track this.
+
+#### Set Up the Tor Transport
+If we are operating in `Tor` or `Dual Stack` mode we need to create a custom Onion transport for IPFS. We talk to a running Tor instance through a utility called [bulb](https://github.com/yawning/bulb). First we grab the control port from the configuration file or through bulb if we have not configured it manually. Next we retrieve the Tor control password the user passed in. The Onion transport needs these pieces of data in order to initialize itself.
 
 ### Set up Custom DNS Resolver
+It's possible to resolve IPNS entries by using DNS TXT records, which we support. We just call out to IPFS to get a DNS style resolver to add to our IPFS setup.
 
-### Set Up the Tor Transport
-	Get control port from Tor
-	Get Tor config password
-	Create new Tor transport (go-onion-transport)
+### Initialize Our IPFS Node
 
-### Create a Background Context to Send to IPFS
+#### Create a Background Context to Send to IPFS
+We need to create a context object to send to our IPFS instance so that we can cancel it whenever we need to (e.g. shutdown).
 
-### Create a new IPFS Node
+#### Create a new IPFS Node
+Create a fresh IPFS node with the context we created and our custom configuration.
 
-### Configure IPFS Context
-- Set Node Online
+We also need to make sure to support IPNSPS (IPNS pubsub) and swap out the default host setup if we're using Tor that makes sure that IPFS knows how to connect to peers through Tor rather than the default method.
+
+#### Configure IPFS Context
+*This might be something we can refactor out of this code to reduce complexity.*
+
+We create a custom IPFS context struct.
+
+- Set Node Online (redundant)
 - Set Configuration Root folder to the data folder path
 - LoadConfig
 - ConstructNode
 
-### Configure Custom DHT Query Size
-	Grab config file querysize
-	If querysize between 1 and 20 then use it otherwise default to 16
+#### Configure Custom DHT Query Size
+DHT query size is essentially how many results we must receive for a DHT record before we accept it as the newest available data on the network. Lower numbers will be quicker results, but potentially deliver stale content. We want the configured value to be between 1 and 20 or default to 16 if the user has not customized this.
 
-### Grab IPFS Root Hash
-	Grab IPNS key from your identity (basically it returns /pk/peerid and /ipns/peerid as strings)
-	Look in the IPFS datastore by your key
-	Ummarshal from a Record object
-	Unmarshal from a IPNSEntry object
-	Send back this value
+### Set Up OpenBazaar Service
 
-### Configure Push Nodes
-- Loop through push nodes and add them to the pushNodes to send to the OB service
+#### Grab IPFS Root Hash
+Our OpenBazaar service requires the IPFS hash of our root folder so we must retrieve it now. This hash is essentially stored as an IPNS entry inside of a DHT record in the datastore.
 
-### GetMnemonic for Wallet
+- Grab IPNS key from your identity (basically it returns /pk/peerid and /ipns/peerid as strings)
+- Look in the IPFS datastore (key-value) by your key
+- Ummarshal from a Record object
+- Unmarshal from a IPNSEntry object
 
-### Set up Wallet
-	Grab network parameters (testnet3, regressionnet, mainnet)
-	Create wallet.log file and set up logger
-	Create WalletConfig object with all necessary parameters
-	Create new MultiWallet
+#### Configure Push Nodes
+OpenBazaar uses custom push nodes to act as caching supernodes in the network and improve availability of content. These push nodes are located in the configuration file so we grab those locations for later.
 
-### Create Resync Manager
+### Create Multiwallet
+
+#### GetMnemonic for Wallet
+Retrieve the wallet mnemonic from the OpenBazaar database.
+
+#### Set up Wallet
+Grab network parameters (testnet3, regressionnet, mainnet)
+Create wallet.log file and set up logger
+Create WalletConfig object with all necessary parameters
+Create new MultiWallet
+
+#### Create Resync Manager
 
 ### Configure Gateway Authentication
 	Get multiaddress for Gateway
