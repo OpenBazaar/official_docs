@@ -41,6 +41,7 @@ node_modules:
 openbazaar-theme:
 	$(PREPEND)[ -d build/assets/fonts ] || mkdir -p build/assets/fonts
 	$(PREPEND)cp ./resources/logo.png ./build/assets/ $(APPEND)
+	$(PREPEND)cp -r ./assets/* ./build/assets/ $(APPEND)
 	$(PREPEND)cp ./node_modules/openbazaar-css/fonts/Montserrat* ./build/assets/fonts/ $(APPEND)
 	$(PREPEND)cp ./node_modules/openbazaar-css/fonts/Inter-UI* ./build/assets/fonts/ $(APPEND)
 	$(PREPEND)node scripts/openbazaar-css-constants.js $(APPEND)
