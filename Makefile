@@ -59,6 +59,7 @@ packages:
 	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/core v0.12.4 $(PKGDIR) go/pkg
 	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/ipfs v0.12.4 $(PKGDIR) go/pkg
 	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/mobile v0.12.4 $(PKGDIR) go/pkg
+	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/namesys v0.12.4 $(PKGDIR) go/pkg
 	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/net v0.12.4 $(PKGDIR) go/pkg
 	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/pb v0.12.4 $(PKGDIR) go/pkg
 	$(PREPEND)scripts/pkg2md.sh github.com/OpenBazaar/openbazaar-go/repo v0.12.4 $(PKGDIR) go/pkg
