@@ -234,87 +234,126 @@ Our OpenBazaar service requires the IPFS hash of our root folder so we must retr
 OpenBazaar uses custom push nodes to act as caching supernodes in the network and improve availability of content. These push nodes are located in the configuration file so we grab those locations for later.
 
 ### Create Multiwallet
+The OpenBazaar Multiwallet is an API based wallet that allows users to control multiple wallets rather than our previous version which was an SPV based wallet and limited to one currency at a time.
+
+The source code for this multiwallet is located at [https://github.com/OpenBazaar/multiwallet](https://github.com/OpenBazaar/multiwallet). If you are interested in creating an integration with a new coin type developers must leverage the wallet interface located at [https://github.com/OpenBazaar/wallet-interface](https://github.com/OpenBazaar/wallet-interface).
 
 #### GetMnemonic for Wallet
 Retrieve the wallet mnemonic from the OpenBazaar database.
 
-#### Set up Wallet
-Grab network parameters (testnet3, regressionnet, mainnet)
-Create wallet.log file and set up logger
-Create WalletConfig object with all necessary parameters
-Create new MultiWallet
+#### Set up Multiwallet
+- Retrieve the appropriate network parameters (testnet3, regressionnet, mainnet).
+- Configure logger settings for the wallet (located at logs/wallet.log).
+- Create WalletConfig object with all necessary parameters to create a new `Multiwallet`.
+- Create new `MultiWallet`.
 
 #### Create Resync Manager
+The OpenBazaar `resync manager` is responsible for inspecting unfunded merchant sales and resyncing the wallet to see if it can detect missing payments.
+
+This functionality currently occurs according to the `ResyncInterval`, which is hourly.
 
 ### Configure Gateway Authentication
-	Get multiaddress for Gateway
-	Get P_IP4 address
-	Protect the gateway from open authentication if public IP, mainnet and apiconfig has been enabled
-	Set allowed IPs in the api config
-	If cookie file does not exist:
-		Create random base58 byte array (32)
-		Create the file
-	Else
-		Check for valid cookie prefix
-		set authcookie from file
+It is possible to make the OpenBazaar API accessible from remote hosts, but it is recommended that cookie-based API authentication be enabled to protect your server. You can read more about this functionality in our [guide](/reference/api/http/).
+
+If the AuthCookie value has been specified then this value is used. If one has not been passed in then the `setAuthCookie` function is called, which sets this up.
+
+The AuthCookie is a file called `.cookie` that resides in the root of the data directory. It contains a value in the format:
+
+```
+OpenBazaar_Auth_Cookie=<base58-encoded 32 byte value>
+```
+
+If a value is not specified on startup then the server creates a random value and creates this file.
 
 ### Set Up Ban Manager
-	Collect settings table from the OB database
-	If blockednodes is not empty:
-		add blocked nodes to the Ban Manager object
+OpenBazaar has a `Ban Manager` that tracks blocked peer IDs that the network service uses to determine if we should accept incoming messages or not. These blocked peer IDs are tracked in the OpenBazaar database and passed to the `Ban Manager` on startup.
 
-### Get Custom Name System
-	Create Blockstack Client resolver
-	If clearnet:
-		Add OpenBazaar DNS resolver
-	Create new Name System with these resolvers
+### Get Custom Name System Resolvers
+OpenBazaar configures several custom resolvers to pass to IPFS for mapping names to peer IDs. There are currently two available:
+
+- [Blockstack](https://github.com/OpenBazaar/go-blockstackclient)
+- [DNS TXT](/go/pkg/openbazaar-go/namesys/#DNSResolver) (only if not using Tor)
 
 ### Setup PubSub
-	New Pubsub Publisher
-	New Pubsub Subscriber
-	Configure IPFS to use those pubsub objects
+OpenBazaar nodes are set up to publish and receive data through the PubSub mechanism in IPFS. The publisher and subscriber must be configured first before enabling it within our IPFS node.
 
-### Create OpenBazaar Node Object
+### Initialize and Start OpenBazaar Node
 
-### Create PublishLock
+#### Create OpenBazaar Node Object
+The `OpenBazaarNode` structure encapsulates everything about what an OpenBazaar node is including but not limited to:
 
-### Configure Offline Message Storage
-	If custom storage is self-hosted or not defined:
-		- create a new self hosted storage store
-	If custom storage is Dropbox
-		- Check for Tor because it can't be used
-		- Check for Dropbox token
-		- Create new Dropbox storage store
+- IPFS Node
+- Network Services
+- Multiwallet
+- Offline Storage Layer
+- Message Retriever
+- Name System
 
-### Setup OpenBazaar HTTP Gateway
+#### Lock Publishing
+We lock publishing down during startup so that the initial publish can occur and once that happens we unlock it for use later.
 
-### Start OpenBazaar Server Loop
-	- If wallet is enabled:
-		- Wait for message retriever to finish if resyncManager is not set
-		- Create a TX listener
-		- Loop through wallets
-			Create Wallet Listener
-			Add WL and TL to the wallet
-		- Create Status Updater
-		- Start Status Updater
-		- Start Multiwallet
-		- If resyncManager is set then
-			- Start it
-			- Start Resync Loop
-				- Wait for Message Retriever Completion
-				- Check for Unfunded transactions
-	- Setup Node Service
-	- Start Message Retriever
-	- Start Pointer Republisher
-	- Start Record Aging Notifier
+#### Configure Offline Message Storage
+OpenBazaar supports offline messaging on top of IPFS. There are several different options for how these messages are stored for the sending node. Currently OpenBazaar ships with support for local file storage and Dropbox hosted storage.
 
-	- Unlock PublishLock
+If another OpenBazaar node is not online or is unreachable we construct an offline message and store it in the network for retrieval at a later date. The message to send is signed and encrypted, stored in offline message storage, then the pointer to this content is published to the closest peers in the DHT as well as the push nodes.
 
-	- Update Follow List
+#### Setup OpenBazaar HTTP Gateway
+OpenBazaar listens on port 4002 as an http server listening for multiplexed API calls for several endpoints. These endpoints route calls to handlers to process the requests.
 
-	If initial publish not complete:
-		- seed nodes
+- /ob/ (json API)
+- /wallet/ (json API)
+- /ws (websocket)
 
-	- Set up republisher using the republish interval
+### Configure Node as a Gateway (optional)
+If you intend to run your OpenBazaar node as a public gateway for content you can specify the API field in the config file. This will expose the `/ipfs` and `ipns` endpoints. You can enable this by making the modification shown below:
 
-## Start Gateway Server
+```
+...
+"Addresses": {
+    "API": "/ip4/127.0.0.1/tcp/4003",   // MODIFIED LINE
+    "Announce": null,
+    "Gateway": "/ip4/127.0.0.1/tcp/4002",
+    "NoAnnounce": null,
+    "Swarm": [
+      "/ip4/0.0.0.0/tcp/4001",
+      "/ip6/::/tcp/4001",
+      "/ip4/0.0.0.0/tcp/9005/ws",
+      "/ip6/::/tcp/9005/ws"
+    ]
+  },
+...
+```
+
+### Main OpenBazaar Process Loop
+The following loop continues to run until the server is shut down and acts as the central hub for all OpenBazaar processes.
+
+
+#### Wallet Functionality
+If the wallet has not been disabled the server will conduct a few things:
+
+- Create wallet and transaction listeners for all wallets found in the MultiWallet
+- Kick off the `StatusUpdater`
+- Start all the wallets in the multiwallet
+- Start the `resyncManager`
+
+#### OpenBazaar Network Service
+The OpenBazaar network service handles the custom OpenBazaar protocol (`/openbazaar/app/<version>`) and stream communications with other nodes. This includes sending message and requests.
+
+#### Message Retriever
+Message Retriever fetches offline messages from the network periodically. It will ask the `push Nodes` for messages every 10 minutes and from the DHT every 60 minutes.
+
+#### Pointer Republisher
+The `Pointer Republisher` republishes content every 12 hours. The republisher loops through all pointers we are tracking and republishes them if they have not expired. For offline messages, any message that is newer than 30 days will be republished to the push nodes. If they have expired then they are deleted from the pointers table.
+
+Moderator messages don't ever expire and continue to get published every 12 hours.
+
+#### Record Aging Notifier
+Every 10 minutes the `Record Aging Notifier` scans many different items in order to send reminder notifications. The following items are included in the scan:
+
+- Seller Disputes
+- Buyer Dispute Timeouts
+- Buyer Dispute Expiry Notifications
+- Moderator Dispute Expiry Notifications
+
+#### Start Gateway Server
+We finally start the gateway server and we are off and running!
