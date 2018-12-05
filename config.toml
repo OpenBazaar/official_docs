@@ -72,6 +72,11 @@ url = "/go/pkg/openbazaar-go/net"
 weight = 11
 [[menu.reference]]
 parent = "go_implementation"
+name = "openbazaar-go /namesys"
+url = "/go/pkg/openbazaar-go/namesys"
+weight = 11
+[[menu.reference]]
+parent = "go_implementation"
 name = "openbazaar-go /mobile"
 url = "/go/pkg/openbazaar-go/mobile"
 weight = 11
