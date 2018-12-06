@@ -5,6 +5,10 @@ menu:
         parent: concepts
 ---
 
+This document outlines the order flow for OpenBazaar transactions.
+
+![OpenBazaar Order Flow](/assets/order-flow.png)
+
 ## Unreachable Nodes and Order States
 
 It is important to note that when a node is unreachable (offline or unable to receive incoming messages), it may not receive messages from the other party that start an order or change the state of an order. Those messages will be saved to the DHT.
@@ -569,3 +573,123 @@ Fees can change, however. It’s possible for a $5 order to be allowed when fees
 More information on fees can be found in this doc:
 
 https://docs.google.com/document/d/1-pydZ6CXZl2KNyTYWFXBBvqlzUTtWiEFNjEkaz8iFWg/edit?usp=sharing
+
+State
+Code
+Details
+Can be Changed From
+Can be Changed To
+PENDING
+0
+Order has been funded and a message has been sent to the vendor, but they were unreachable. The vendor must accept or decline the order when they see it.
+AWAITING_PAYMENT
+AWAITING_FULFILLMENT
+CANCELLED
+DECLINED
+DISPUTED
+AWAITING_PAYMENT
+1
+Waiting for the buyer to fund the payment address.
+New Order
+PENDING
+AWAITING_FULFILLMENT
+AWAITING_PICKUP
+2
+Waiting for the customer to pick up the order (customer pickup option only)
+?
+COMPLETED
+PAYMENT_FINALIZED
+AWAITING_FULFILLMENT
+3
+Order has been fully funded and we're waiting for the vendor to fulfill
+PENDING
+AWAITING_PAYMENT
+PARTIALLY_FULFILLED
+FULFILLED
+REFUNDED
+DISPUTED
+PARTIALLY_FULFILLED
+4
+Vendor has fulfilled part of the order. This is part of the cart functionality that is currently not used by any implementations.
+AWAITING_FULFILLMENT
+FULFILLED
+REFUNDED
+DISPUTED
+FULFILLED
+5
+Vendor has fulfilled the order
+AWAITING_FULFILLMENT
+PARTIALLY_FULFILLED
+COMPLETED
+PAYMENT_FINALIZED
+DISPUTED
+COMPLETED
+6
+Buyer has completed the order and left a review
+FULFILLED
+AWAITING_PICKUP
+RESOLVED
+PAYMENT_FINALIZED
+
+
+CANCELLED
+7
+Buyer canceled the order (offline order only)
+PENDING
+
+
+DECLINED
+8
+Vendor declined to confirm the order (offline order only)
+PENDING
+
+
+REFUNDED
+9
+Vendor refunded the order
+AWAITING_FULFILLMENT
+PARTIALLY_FULFILLED
+
+
+DISPUTED
+10
+Contract is under active dispute
+Buyer:
+PENDING
+FULFILLED
+AWAITING_FULFILLMENT
+PARTIALLY_FULFILLED
+FULFILLED
+PROCESSING_ERROR
+
+Seller:
+PARTIALLY_FULFILLED
+FULFILLED
+
+
+DECIDED
+PAYMENT_FINALIZED
+DECIDED
+11
+The moderator has resolved the dispute and we are waiting for the winning party to accept the payout.
+DISPUTED
+RESOLVED
+
+
+RESOLVED
+12
+The winning party has accepted the dispute and it is now complete. After the buyer leaves a review the state should be set to COMPLETE.
+DECIDED
+COMPLETED
+PAYMENT_FINALIZED
+13
+Escrow has been released after waiting the timeout period. After the buyer leaves a review the state should be set to COMPLETE.
+FULFILLED
+DISPUTED
+COMPLETED
+PROCESSING_ERROR
+14
+This state is only used for offline orders. If a processing error occurred with an open connection between buyer and vendor the vendor just rejects the order on the spot neither party commits the order to the database.
+
+
+DISPUTED
