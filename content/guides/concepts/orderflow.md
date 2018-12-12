@@ -5,11 +5,33 @@ menu:
         parent: concepts
 ---
 
-## Unreachable Nodes and Order States
+# Order Flow
 
-It is important to note that when a node is unreachable (offline or unable to receive incoming messages), it may not receive messages from the other party that start an order or change the state of an order. Those messages will be saved to the DHT.
+This document outlines the order flow for OpenBazaar transactions.
 
-The receiver’s node should check for stored messages on startup, and every 10 minutes. When it detects stored messages, it will download them from the DHT, then make changes to order states as needed.
+## Optimal Order Path
+
+An order that is completed with no issues should follow the steps below:
+- Buyer: ob/purchase
+- Buyer: wallet/spend
+- Seller: ob/orderconfirm (offline orders only)
+- Seller: ob/orderfullfillment
+- Buyer: ob/ordercompletion
+
+Funds are transferred to the seller immediately for direct orders.
+
+Multisig orders (the seller node was unreachable at the moment of purchase, or the order is moderated) hold their funds in escrow until the order is completed (ob/ordercompletion), refunded, disputed and the dispute is resolved, or after the order has timed out and ob/releaseescrow is called.
+
+
+![OpenBazaar Order Flow](/assets/order-flow.png)
+
+### Unreachable Nodes and Order States
+
+It is important to note that when a node is unreachable (offline or unable to receive incoming messages), it may not receive messages from the other party to start or change the state of an order.
+
+The receiver’s node should check for messages stored on any connected push node on startup, and every 10 minutes. When it detects stored messages, it will download them from the push node, then make changes to order states as needed.
+
+Once an hour nodes also check the DHT for any messages that have not yet been retrieved. If messages are found, they are pulled from the original sender or a push node.
 
 ### Error Format
 Errors should always have a success parameter of false, and a reason. Ideally errors will also supply an error code to assist with internationalization.
@@ -21,12 +43,8 @@ Errors should always have a success parameter of false, and a reason. Ideally er
 }
 ```
 
-### Types
-**Strings**: Strings should have a character max designated in the right side notes.
-**Integers**: Unless otherwise specified, all numbers are 64 bit integers.
-
-### Optional Values
-Any keys that are not required to be sent in the JSON are blue.
+## API Calls
+The following is a detailed list of purchase-related API calls.
 
 ### Quick Reference
 
@@ -40,10 +58,15 @@ Any keys that are not required to be sent in the JSON are blue.
 | `ob/orderfulfillment`         |  Fulfill an order.        |
 | `ob/refund`        |  Send funds back to the buyer if the order isn't fulfilled yet.        |
 
-## API Calls
+### Types
+**Strings**: Strings should have a character max. \
+**Integers**: Unless otherwise specified, all numbers are 64 bit integers.
+
+### Optional Values
+Any keys that are not required to be sent in the JSON are marked as optional.
 
 ### **POST** wallet/estimatefee
-**Estimate the Fee**
+**Estimate the Fee To Spend Funds**
 
 **INCOMING STATUS**: N/A \
 **OUTGOING STATUS**: N/A
@@ -129,13 +152,13 @@ The purchase call can be made to a reachable or a unreachable vendor (offline or
 
 If the total of the purchase is not more than 4x the current transaction fee, the purchase will be rejected (ie: if the fee is 0.0001, the total purchase must be more than 0.0004).
 
-*Note*: once a purchase creates an order, the order is permanent. This can cause some confusion, since the purchaser does not have to pay for the order, which can leave an order in the AWAITING_PAYMENT state indefinitely.
+*Note*: once a purchase creates an order, the order is permanent, and cannot be deleted. This can cause some confusion, since the purchaser does not have a time limit to pay for the order, which can leave an order in the AWAITING_PAYMENT state indefinitely.
 
-This is different from most eCommerce platforms, which only create an order when it’s paid for. It works this way because the user may not have sufficient funds at the moment of purchase, and could fund that order at any time in the future, even if it’s years later.
+This is different from most eCommerce platforms, which only create an order when it’s paid for. It works this way because the user may not have sufficient funds at the moment of purchase, and could fund that order at any time in the future, even years later.
 
-**Data Sent**
+Orders are also independent of their listings once they are created. Modifying or deleting a listing will not affect existing orders for it.
 
-Listing Types: Physical, Digital, Service Listing
+**Data Sent (Listing Types: PHYSICAL_GOOD, DIGITAL_GOOD, SERVICE)**
 
 ```
 {
@@ -176,24 +199,23 @@ Listing Types: Physical, Digital, Service Listing
 }
 ```
 
-- Only the `shipTo` and `countryCode` are required in the address data, and only if the item is a **physical** good.
-- For non-physical orders, the address fields are optional.
-- If the `moderator` value is left blank or the parameter is not included, this will be an **unmoderated** order. If the value is not in the listing’s moderator list the purchase will be rejected.
-- The items should be an array of item objects. This supports multiple items for future cart functionality.
+- Only the `shipTo` and `countryCode` are required in the address data, and only if the listing type is **PHYSICAL_GOOD**.
+- For non-physical good orders, the address fields are optional.
+- If the `moderator` value is left blank or the parameter is not included, this will be an **unmoderated** order.
+- If the value of `moderator` is not in the listing’s moderator list the purchase will be rejected.
+- The items should be an array of item objects. This supports multiple items from the same seller for future cart functionality.
 - If the vendor is reachable, the purchase will be rejected if the `quantity` is over the amount left in inventory.
 - If the vendor is not reachable, the `quantity` can be any integer greater than zero.
 - The `options` describe each option (variant) that was chosen. Each option in the item must have a value. It should be an empty array if the item didn’t have `options`.
-- If this is a **physical** good, the `shipping` object has the name of the shipping option, and one of the services in it.
-- A `shipping` object is only required if the listing is a **physical** listing.
+- If this is a listing of type **PHYSICAL_GOOD**, the `shipping` object has the name of the shipping option, and one of the services in it.
+- A `shipping` object is only required if the listing has a type of **PHYSICAL_GOOD**.
 - `Memo` is only required if it has a value.
 - `Coupons` is only required if it has a value.
-- The coupon values are the coupon codes. If an invalid value is sent, it is ignored by the server.
-- `Memo` and `alternateContactInfo` are both arbitrary strings.
+- The coupon values are the coupon codes. If an invalid value is sent, it is ignored.
+- `Memo` and `alternateContactInfo` are both arbitrary strings, and optional.
 - `RefundAddress` is an external address to return funds to when an order is **cancelled**, **refunded**, or a dispute is **resolved**. It should be used if the buyer pays with an external wallet.
 
-**Data Sent**
-
-Listing Types: Crypto Listing
+**Data Sent (Listing Type: CRYPTOCURRENCY)**
 
 ```
 {
@@ -211,8 +233,8 @@ Listing Types: Crypto Listing
 }
 ```
 
-- For a crypto listing, the `quantity` represents base units of the currency.
-- The `paymentAddress` is ideally a valid address, but it is not validated by the server.
+- When purchasing a listing of type CRYPTOCURRENCY, the `quantity` represents base units of the currency.
+- The `paymentAddress` is ideally a valid address, but it is not validated.
 
 **Data Received**
 
@@ -229,22 +251,14 @@ Listing Types: Crypto Listing
 - The `vendorOnline` boolean represents whether the seller could receive incoming messages when the purchase was made. This affects whether the order moves to **AWAITING_FULFILLMENT** or **PENDING** when the order is paid for and the TX (txid returned from the spend call) for the order is confirmed.
 
 ### **POST** wallet/spend
-**Pay for the Purchase**
+**Send Funds**
 
-**INCOMING STATUS**: AWAITING_PAYMENT \
-**OUTGOING STATUS**: PENDING or AWAITING_FULFILLMENT
+**INCOMING STATUS**: N/A \
+**OUTGOING STATUS**: N/A or PENDING or AWAITING_FULFILLMENT
 
-The buyer will pay a fee in addition to the amount of the order. The fee is determined by the fee level (ECONOMIC, NORMAL, PRIORITY) sent to the call.
+This will send funds to an address. Typically it is used to send funds unrelated to an order. If this call is used to send funds to the funding address of an order, the order will be funded the same way it would be if an external wallet was used to fund it.
 
-- If the order is `unmoderated`, and the seller is reachable, the payment will be ?
-- If the order is `moderated`, the payment will be a 2-of-3 multisig.
-- If the seller is unreachable, the payment will be a 2-of-2 multisig.
-
-If the seller is reachable, the order will move to the AWAITING_FULFILLMENT state.
-
-If the seller is unreachable, the order will move to the PENDING state.
-
-For multi-signature payments, the crypto transaction is set to be claimable by the seller after roughly 45 days (measured by blocks). The `ob/releaseescrow` API will reset the timer for a new 45 days if the order is disputed, but this doesn’t change the original payment. It can be claimed directly by the seller if they use an external wallet.
+If an order address is funded in this way, it will move the state of the order according to the same rules as the wallet/orderspend endpoint.
 
 **Data Sent**
 
@@ -257,9 +271,9 @@ For multi-signature payments, the crypto transaction is set to be claimable by t
 }
 ```
 
-The fee level will be used for the initial transaction. Transactions after that will use the NORMAL fee, set by the server.
+The `feeLevel` will be used for the initial transaction. Transactions after that will use the NORMAL fee.
 
-**Q**: Does this normal fee get used by the transaction when completing the order?
+The `memo` field is only used internally, and is shown later to the sender. It can be used for notes about the reason for sending the fund.
 
 **Data Received**
 ```
@@ -276,9 +290,62 @@ The fee level will be used for the initial transaction. Transactions after that 
 - `Amount` is the total amount paid. It is not known until the payment is made.
 - `confirmedBalance` is the amount in the buyer’s wallet.
 - `unconfirmedBalance` is the amount in the buyer’s wallet that hasn’t been confirmed yet.
-- The `memo` is usually the name of the listing.
+- The `memo` just returns the same memo data sent in the call.
 
-**Q**: What is the purpose of returning the balances?
+### **POST** wallet/orderspend
+**Pay for the Purchase**
+
+**INCOMING STATUS**: AWAITING_PAYMENT \
+**OUTGOING STATUS**: PENDING or AWAITING_FULFILLMENT
+
+The buyer will pay a fee in addition to the amount of the order. The fee is determined by the fee level (ECONOMIC, NORMAL, PRIORITY) sent to the call.
+
+- If the order is `unmoderated`, and the seller is reachable, the payment will be to a 2-of-2 multisignature escrow address.
+- If the order is `moderated`, the payment will be to a 2-of-3 multisignature escrow address.
+- If the seller is unreachable, the payment will be to a 2-of-2 multisignature escrow address.
+
+If the seller is reachable, the order will move to the AWAITING_FULFILLMENT state.
+
+If the seller is unreachable, the order will move to the PENDING state.
+
+For multi-signature payments, the funds in the 2-of-3 address can be moved by the seller on their own after roughly 45 days (measured by blocks), normally they'd do so to move them to an address they control ("claiming" the payment).
+
+The `ob/releaseescrow` API will reset the timer for a new 45 days if the order is disputed (ie: the server will reject calls to `ob/releaseescrow`), but this doesn’t change the original payment. It can be claimed directly by the seller if they use an external wallet.
+
+**Note:** This call was added in version 2.3. Earlier version use the wallet/spend endpoint instead.
+
+**Data Sent**
+
+```
+{
+  "feeLevel": "NORMAL",
+  "memo": "",
+  "address": "tb1q2gzlqfs27al4087h56gg9pgza2l7fp0v7tl0llgd9agfhx6us8qs5ht6fw",
+  "amount": 26570,
+  "orderId": "QmZREfp2mxUS7Qwy1c7hkUTM5yFjyydhwp8fWDDYS7sajF"
+}
+```
+
+The `feeLevel` will be used for the initial transaction. Transactions after that will use the NORMAL fee.
+
+If a `memo` is sent, it will be used. If not, the title of the listing will be recorded as the memo.
+
+**Data Received**
+```
+{
+  "amount": 27106,
+  "confirmedBalance": 145637,
+  "memo": "name of listing",
+  "timestamp": "2018-04-19T15:16:18-04:00",
+  "txid": "ee4f0bb4b405f17eeeb3e84aaf6bb02a13763cf87a71375f7d59ca5fe916a47d",
+  "unconfirmedBalance": 0
+}
+```
+
+- `Amount` is the total amount paid. It is not known until the payment is made.
+- `confirmedBalance` is the amount in the buyer’s wallet.
+- `unconfirmedBalance` is the amount in the buyer’s wallet that hasn’t been confirmed yet.
+- The `memo` is set to the name of the listing if no `memo` was sent in the POST.
 
 ### **POST** ob/ordercancel
 **Buyer cancels the order**
@@ -288,7 +355,9 @@ The fee level will be used for the initial transaction. Transactions after that 
 
 If the order is in the **PENDING** state (it has been funded but the seller has not accepted it yet) the buyer can cancel it. This will move the funds back to their wallet and change the state to **CANCELLED**.
 
-This will subtract a NORMAL fee from the transaction.
+If a `RefundAddress` was provided with the payment, the funds will be moved to that address.
+
+This will subtract a NORMAL fee from the transaction (ie: the buyer is refunded their payment not including the original fee, minus a fee to move the funds back to them).
 
 **Data Sent**
 
@@ -343,7 +412,9 @@ Empty data is returned if successful.
 
 This will trigger a 45 day timer on the order. After 45 days if the state of the order is still **FULFILLED** the seller will be able to call the `releaseescrow` API to change the state to **PAYMENT_FINALIZED** and claim the funds.
 
-**Data Sent** (Physical Good)
+The ability for the seller to retrieve the funds is a function of the transaction, it is possible for the seller to move the funds after 45 days manually using an external wallet for most coins.
+
+**Data Sent (Physical Good)**
 
 ```
 {
@@ -354,13 +425,15 @@ This will trigger a 45 day timer on the order. After 45 days if the state of the
   	"trackingNumber": "123abc"
 	}
   ],
-  "note": "A note"
+  "note": "Will arrive in a blue box."
 }
 ```
 
-`Shipper` should be the name of the shipping option chosen by the buyer.
+`shipper` should be the name of the shipping option chosen by the buyer.
+`trackingNumber` is optional.
+`note` is optional.
 
-**Data Sent** (Digital Good)
+**Data Sent (Digital Good)**
 
 ```
 {
@@ -375,22 +448,28 @@ This will trigger a 45 day timer on the order. After 45 days if the state of the
 }
 ```
 
-The url is required, the password is optional.
+`url` is required, `password` is optional.
+`note` is optional.
 
-**Data Sent** (Service)
+**Data Sent (Service)**
 
 ```
 {
   "orderId": "QmV3mBSSq992ETtFYJgK9mZeMKxdnqKQ7U1xQXL8eAXFNd",
-  "note": "asddsa"
+  "note": "I will call 30 minutes before I arrive."
 }
 ```
 
-If neither physicalDelivery nor digitalDelivery is sent, the fulfillment is a service.
+If neither a physicalDelivery nor a digitalDelivery object is sent, the fulfillment is a service.
+`note` is optional.
 
-**Data Sent** (Cryptocurrency)
+**Data Sent (Cryptocurrency)**
+
 ```
-TODO
+{
+  "orderId": "QmYrhFUcCctNTp8fmUEzoELhQc7aBddnyr7AMgfhjk1QaM",
+  "note": "Enjoy your coins."
+}
 ```
 
 **Data Received**
@@ -407,7 +486,11 @@ Empty data is returned if successful.
 **INCOMING STATUS**: AWAITING_FULFILLMENT \
 **OUTGOING STATUS**: REFUNDED
 
-An order can be refunded when it is in the **AWAITING_FULFILLMENT** state. This will move it to the **REFUNDED** state.
+An order can be refunded when it is in the **AWAITING_FULFILLMENT** state. This will move it to the **REFUNDED** state, and move the funds that paid for the order back to the buyer.
+
+If a `RefundAddress` was provided with the payment, the funds will be moved to that address.
+
+The seller will pay the fee needed to move the order funds to a new address.
 
 **Data Sent**
 
@@ -451,7 +534,7 @@ Empty data is returned if successful.
 }
 ```
 
-The anonymous parameter controls whether the user’s peerID will be displayed by the seller on the review.
+The `anonymous` parameter controls whether the user’s peerID will be displayed by the seller on the review.
 
 **Data Received**
 
@@ -467,7 +550,7 @@ Empty data is returned if successful.
 **INCOMING STATUS**: PENDING (buyer), AWAITING_FULFILLMENT (buyer), PARTIALLY_FULFILLED (buyer, seller), FULFILLED (buyer, seller), PROCESSING_ERROR (buyer if order funded) \
 **OUTGOING STATUS**: DISPUTED
 
-When a dispute is started, the order state becomes **DISPUTED**. A message will be sent to the moderator on the order. They are the only one able to change the state of the order once it is **DISPUTED** until 45 days after the start of the dispute, at which point the seller will be able to call the `releaseescrow` API to change the state to **PAYMENT_FINALIZED** and claim the funds.
+When a dispute is started, the order state becomes **DISPUTED**. A message will be sent to the moderator of the order (the one listed in the contract). They are the only one able to change the state of the order once it is **DISPUTED** until 45 days after the start of the dispute, at which point the seller will be able to call the `releaseescrow` API to change the state to **PAYMENT_FINALIZED** and claim the funds.
 
 **Data Sent**
 
@@ -492,20 +575,22 @@ Empty data is returned if successful.
 **INCOMING STATUS**: DISPUTED \
 **OUTGOING STATUS**: DECIDED
 
-This call will create a payout decision in a dispute. Once made, the decision is final, either the buyer or seller must accept the decision by calling `ob/releasefunds` to move the order out of the **DECIDED** state.
+This call will create a payout decision in a dispute. Once the decision is made, either the buyer or seller must accept it by calling `ob/releasefunds` to move the order out of the **DECIDED** state.
 
-It is important to note that the actual payout to the buyer and seller is reduced by the moderators fee. The percentages are applied after the fee.
+It is important to note that the actual payout to the buyer and seller is reduced by both the network fee and the the moderator's fee.
 
-Since the moderator’s fee can be a fixed amount, it is possible for the actual payout to one or both parties to be below the dust limit, or zero. If that happens, no payment will be sent to that user.
+The fee to move the funds is subtracted from the funds in the order first. After that, the moderator's fee is subtracted, and the percentages are applied to the remaining funds.
+
+It is possible for the actual payout to one or more parties to be below the dust limit, or zero. If that happens, no payment will be sent to that party. The dispute will still be resolved and will otherwise proceed normally even if some participants in the dispute do not receive any funds.
 
 **Data Sent**
 
 ```
 {
-  "resolution": "I am in favor of the buyer.",
+  "resolution": "I am mostly in favor of the buyer.",
   "orderId": "QmV3mBSSq992ETtFYJgK9mZeMKxdnqKQ7U1xQXL8eAXFNd",
-  "buyerPercentage": 100,
-  "vendorPercentage": 0
+  "buyerPercentage": 80,
+  "vendorPercentage": 20
 }
 ```
 
@@ -546,17 +631,22 @@ Empty data is returned if successful.
 **INCOMING STATUS**: FULFILLED, DISPUTED \
 **OUTGOING STATUS**: PAYMENT_FINALIZED
 
-If the order is in the **FULFILLED** state, and 45 days have passed since the order was funded, the seller can call this API. The time is based on the number of confirmations on the payment  (each confirmation is roughly 10 minutes).
+If the order is in the **FULFILLED** state, and 45 days have passed since the order was funded, the seller can call this API. The time is based on the number of blocks since the payment was confirmed, multiplied by the average time for a block to be written.
 
-If the order is in the **DISPUTED** state, and 45 days have passed since the dispute was started, the seller can call this API.
-
-If the order was in the **AWAITING_FULFILLMENT** state before the dispute was started,
+If the order is in the **DISPUTED** state, and 45 days have passed since the dispute was started, the seller can call this API. The time in this case is based on the timestamp of the dispute.
 
 In both cases, the buyer can call `ob/ordercompletion` to leave a review and complete the order.
+
 
 ## Location of Funds
 
 The location of a user’s funds depend on the state of the order, and whether it was a multisig transaction.
+
+Direct online transaction: the funds are sent directly to an address the seller controls.
+
+Direct offline transaction: the funds are sent to a 2-of-3 multisignature escrow address, with the OB server as the 3rd party.
+
+Moderated transaction: the funds are sent to a 2-of-3 multisignature escrow address, with the moderator as the 3rd party.
 
 ## TODO
 
@@ -569,3 +659,113 @@ Fees can change, however. It’s possible for a $5 order to be allowed when fees
 More information on fees can be found in this doc:
 
 https://docs.google.com/document/d/1-pydZ6CXZl2KNyTYWFXBBvqlzUTtWiEFNjEkaz8iFWg/edit?usp=sharing
+
+| State |Code | Details | Can be Changed From | Can be Changed To |
+|---|---|---|---|---|
+| PENDING | 0 | Order has been funded and a message has been sent to the vendor, but they were unreachable. The vendor must accept or decline the order when they see it. | AWAITING_PAYMENT | AWAITING_FULFILLMENT
+CANCELLED
+DECLINED
+DISPUTED |
+| AWAITING_PAYMENT | 1 | Waiting for the buyer to fund the payment address. | New Order | PENDING
+AWAITING_FULFILLMENT |
+
+AWAITING_PICKUP
+2
+Waiting for the customer to pick up the order (customer pickup option only)
+?
+COMPLETED
+PAYMENT_FINALIZED
+AWAITING_FULFILLMENT
+3
+Order has been fully funded and we're waiting for the vendor to fulfill
+PENDING
+AWAITING_PAYMENT
+PARTIALLY_FULFILLED
+FULFILLED
+REFUNDED
+DISPUTED
+PARTIALLY_FULFILLED
+4
+Vendor has fulfilled part of the order. This is part of the cart functionality that is currently not used by any implementations.
+AWAITING_FULFILLMENT
+FULFILLED
+REFUNDED
+DISPUTED
+FULFILLED
+5
+Vendor has fulfilled the order
+AWAITING_FULFILLMENT
+PARTIALLY_FULFILLED
+COMPLETED
+PAYMENT_FINALIZED
+DISPUTED
+COMPLETED
+6
+Buyer has completed the order and left a review
+FULFILLED
+AWAITING_PICKUP
+RESOLVED
+PAYMENT_FINALIZED
+
+
+CANCELLED
+7
+Buyer canceled the order (offline order only)
+PENDING
+
+
+DECLINED
+8
+Vendor declined to confirm the order (offline order only)
+PENDING
+
+
+REFUNDED
+9
+Vendor refunded the order
+AWAITING_FULFILLMENT
+PARTIALLY_FULFILLED
+
+
+DISPUTED
+10
+Contract is under active dispute
+Buyer:
+PENDING
+FULFILLED
+AWAITING_FULFILLMENT
+PARTIALLY_FULFILLED
+FULFILLED
+PROCESSING_ERROR
+
+Seller:
+PARTIALLY_FULFILLED
+FULFILLED
+
+
+DECIDED
+PAYMENT_FINALIZED
+DECIDED
+11
+The moderator has resolved the dispute and we are waiting for the winning party to accept the payout.
+DISPUTED
+RESOLVED
+
+
+RESOLVED
+12
+The winning party has accepted the dispute and it is now complete. After the buyer leaves a review the state should be set to COMPLETE.
+DECIDED
+COMPLETED
+PAYMENT_FINALIZED
+13
+Escrow has been released after waiting the timeout period. After the buyer leaves a review the state should be set to COMPLETE.
+FULFILLED
+DISPUTED
+COMPLETED
+PROCESSING_ERROR
+14
+This state is only used for offline orders. If a processing error occurred with an open connection between buyer and vendor the vendor just rejects the order on the spot neither party commits the order to the database.
+
+
+DISPUTED

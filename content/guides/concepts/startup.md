@@ -37,22 +37,22 @@ The OpenBazaar architecture consists of several components:
 There are many parameters that can be passed into the `start` command and this is a short description of how they affect the server.
 
 ### OpenBazaar Specific
-- Password - It is possible to encrypt the OpenBazaar sqlite database. In order to decrypt it at startup you can pass this parameter through the command line.
-- Testnet - OpenBazaar has a testnet network that is segregated from the mainnet users. This flag enables the testnet.
-- Regtest - OpenBazaar has a regtest network that is segregated from the mainnet users. This flag enables the regtest network.
-- DataDir - Specify where the OpenBazaar data directory resides.
-- UserAgent - Specify a custom user-agent field. (Default: /openbazaar-go:<version#>/)
+- Password (p) - It is possible to encrypt the OpenBazaar sqlite database. In order to decrypt it at startup you can pass this parameter through the command line.
+- Testnet (t) - OpenBazaar has a testnet network that is segregated from the mainnet users. This flag enables the testnet.
+- Regtest  (r) - OpenBazaar has a regtest network that is segregated from the mainnet users. This flag enables the regtest network.
+- DataDir (d) - Specify where the OpenBazaar data directory resides.
+- UserAgent (u) - Specify a custom user-agent field. (Default: /openbazaar-go:<version#>/)
 - Storage - Set the outgoing message store option default to self-hosted but you can choose dropbox.
 
 ### Logging
-- LogLevel - Set the logging level (can be debug, info, notice, warning).
-- NoLogFiles - Turn off log files being stored on disk.
-- Verbose - Print OpenBazaar logs to stdout.
+- LogLevel (l) - Set the logging level (can be debug, info, notice, warning).
+- NoLogFiles (f) - Turn off log files being stored on disk.
+- Verbose (v) - Print OpenBazaar logs to stdout.
 
 ### Networking
-- AllowIP - Only allow these IPs to access the OpenBazaar API server.
-- STUN - STUN allows traversal of NAT connections through the use of a STUN server.
-- AuthCookie - Specify the AuthCookie to use to authenticate to the OpenBazaar API server.
+- AllowIP (a) - Only allow these IPs to access the OpenBazaar API server.
+- STUN (s) - STUN allows traversal of NAT connections through the use of a STUN server.
+- AuthCookie (c) - Specify the AuthCookie to use to authenticate to the OpenBazaar API server.
 
 ### Tor
 - TorPassword - Specify the Tor control password.
@@ -64,7 +64,7 @@ There are many parameters that can be passed into the `start` command and this i
 - DisableExchangeRates - Disable querying exchange rates for pricing.
 
 ### Wallets
-- BitcoinCash/ZCash - Enable other wallets (being deprecated once multi-wallet is enabled)
+- BitcoinCash/ZCash - Enable other wallets (this will be deprecated once multi-wallet is enabled).
 
 
 ## Startup Process Walkthrough
@@ -94,38 +94,37 @@ OpenBazaar Server v0.12.4
 #### Network Checks
 Analyze specified flags and configuration for network connectivity and handle any conflicting settings.
 
-- Check if `testnet` and `regtest` set and fail if positive
-- Check if Tor and `dualstack` and fail if positive
-- Keep track of if `testnet` or `regtest` is activated
-- Check if user set multiple currencies simultaneously (currently we only support one at a time)
+- Check if `testnet` and `regtest` set and fail if positive.
+- Check if Tor and `dualstack` and fail if positive.
+- Keep track of whether `testnet` or `regtest` is activated.
+- Check if user set multiple simultaneous currencies (currently we only support one at a time).
 
 #### Set up Data Directory Location
-Every OpenBazaar node has a corresponding data directory where all important user data is stored. There is a default location that we determine if a specific location is not provided.
+Every OpenBazaar node has a corresponding data directory where all important user data is stored. There is a default location that we use if a specific location is not provided.
 
-If user set the data directory:
-  then set it explicitly
+If user set the data directory: then set it explicitly.
 
-Else: Get data directory path from the **[Schema Manager](/go/pkg/openbazaar-go/schema/#NewCustomSchemaManager)**
+Else: Get data directory path from the **[Schema Manager](/go/pkg/openbazaar-go/schema/#NewCustomSchemaManager)**.
 
 #### Clear Lock File
 Remove lock file from the data directory in case the server closed uncleanly.
 
 #### Set up Logging Levels
-Loggers must be configured for location to store log files, rotation and content settings. There are several log files generated with different content:
+Loggers must be configured with the location to store log files, rotation and content settings. There are several log files generated with different content:
 
-- ob.log - Contains OpenBazaar specific log data
+- ob.log - Contains OpenBazaar specific log data.
 - ipfs.log - All debugging data for IPFS is stored here.
 - api.log - Logs API calls to the OpenBazaar server.
 - bitcoin.log - Wallet logging.
 
 #### Increase OS file descriptors due to low default limits
-IPFS consumes a massive amount of file descriptors that exceed most operating system defaults and this results in crashing of the server. We proactively raise these limits to prevent this problem.
+IPFS consumes a massive amount of file descriptors that exceeds most operating system defaults and this can result in the server crashing. We proactively raise these limits to prevent this problem.
 
 #### Set Wallet Type by Getting the Coin Type
-Grab the specified coin type so that OpenBazaar migrations can run for the appropriate coin.
+Grab the specified coin type so OpenBazaar migrations can run for the appropriate coin.
 
 ### Database Initialization
-If a database (datastore/mainnet.db) has not been created yet, then create it.
+If a database (datastore/mainnet.db) has not been created yet, create it.
 
 ### Initialize Config File Objects
 The main configuration file (config) is broken up into several schema objects that make interacting with them easier including:
@@ -136,13 +135,13 @@ The main configuration file (config) is broken up into several schema objects th
 - resolverConfig
 - walletsConfig
 
-Several configuration settings also are extracted from the config file:
+Several configuration settings are also extracted from the config file:
 
 - dropboxToken
 - republishInterval
 
 ### Check SSL Configuration
-- If the SSL files are specified then set up SSL authentication
+- If the SSL files are specified then set up SSL authentication.
 
 ### Get IPFS Config
 Retrieve the configuration file from the user's data folder. This gives you an IPFS struct of the configuration file that includes things relevant to IPFS alone and ignoring the OpenBazaar extension.
@@ -167,7 +166,7 @@ type Identity struct {
 ### Set up Testnet Settings
 Testnet and Regtest modes require some different configuration settings to be updated including:
 
-- Special bootstrap nodes
+- Special bootstrap nodes.
 - Custom protocol strings for:
   - DHT
   - Bitswap
@@ -176,11 +175,11 @@ Testnet and Regtest modes require some different configuration settings to be up
 ### Tor Configuration
 
 #### Configure IPFS Swarm for Tor Support
-Using Tor with IPFS requires us to create a hidden service using the Tor control service. If one has not been created we go ahead and generate an onion key and get the address of our hidden service. If we already have one in our data directory then we grab it.
+Using Tor with IPFS requires us to create a hidden service using the Tor control service. If one has not been created we generate an onion key and get the address of our hidden service. If we already have one in our data directory then we grab it.
 
 We then need to configure the IPFS swarm to support our service by adding the onion address to our swarm addresses.
 
-*If we are operating in `Dual Stack` mode then we need to add our clearnet addresses to listen on as well as the hidden service address*
+*If we are operating in `Dual Stack` mode then we need to add our clearnet addresses to listen on as well as the hidden service address.*
 
 #### Process Swarm Addresses
 There are two scenarios where we need to modify our swarm addresses: if we're using STUN and also UTP transport protocol and if it's an onion address.
@@ -195,7 +194,7 @@ Lastly if we find any addresses that don't meet the above conditions then we kno
 If we are operating in `Tor` or `Dual Stack` mode we need to create a custom Onion transport for IPFS. We talk to a running Tor instance through a utility called [bulb](https://github.com/yawning/bulb). First we grab the control port from the configuration file or through bulb if we have not configured it manually. Next we retrieve the Tor control password the user passed in. The Onion transport needs these pieces of data in order to initialize itself.
 
 ### Set up Custom DNS Resolver
-It's possible to resolve IPNS entries by using DNS TXT records, which we support. We just call out to IPFS to get a DNS style resolver to add to our IPFS setup.
+It's possible to resolve IPNS entries by using DNS TXT records, which we support. We call out to IPFS to get a DNS style resolver to add to our IPFS setup.
 
 ### Initialize Our IPFS Node
 
@@ -223,12 +222,12 @@ DHT query size is essentially how many results we must receive for a DHT record 
 ### Set Up OpenBazaar Service
 
 #### Grab IPFS Root Hash
-Our OpenBazaar service requires the IPFS hash of our root folder so we must retrieve it now. This hash is essentially stored as an IPNS entry inside of a DHT record in the datastore.
+Our OpenBazaar service requires the IPFS hash of our root folder so we must retrieve it now. This hash is stored as an IPNS entry inside of a DHT record in the datastore.
 
-- Grab IPNS key from your identity (basically it returns /pk/peerid and /ipns/peerid as strings)
-- Look in the IPFS datastore (key-value) by your key
-- Ummarshal from a Record object
-- Unmarshal from a IPNSEntry object
+- Grab IPNS key from your identity (basically it returns /pk/peerid and /ipns/peerid as strings).
+- Look in the IPFS datastore (key-value) by your key.
+- Ummarshal from a Record object.
+- Unmarshal from a IPNSEntry object.
 
 #### Configure Push Nodes
 OpenBazaar uses custom push nodes to act as caching supernodes in the network and improve availability of content. These push nodes are located in the configuration file so we grab those locations for later.
@@ -249,6 +248,7 @@ Retrieve the wallet mnemonic from the OpenBazaar database.
 
 #### Create Resync Manager
 The OpenBazaar `resync manager` is responsible for inspecting unfunded merchant sales and resyncing the wallet to see if it can detect missing payments.
+<!-- I think the resync also runs at startup, should we include a note for that here?-->
 
 This functionality currently occurs according to the `ResyncInterval`, which is hourly.
 
@@ -280,7 +280,7 @@ OpenBazaar nodes are set up to publish and receive data through the PubSub mecha
 ### Initialize and Start OpenBazaar Node
 
 #### Create OpenBazaar Node Object
-The `OpenBazaarNode` structure encapsulates everything about what an OpenBazaar node is including but not limited to:
+The `OpenBazaarNode` structure encapsulates everything about what an OpenBazaar node is, including but not limited to:
 
 - IPFS Node
 - Network Services
@@ -295,7 +295,7 @@ We lock publishing down during startup so that the initial publish can occur and
 #### Configure Offline Message Storage
 OpenBazaar supports offline messaging on top of IPFS. There are several different options for how these messages are stored for the sending node. Currently OpenBazaar ships with support for local file storage and Dropbox hosted storage.
 
-If another OpenBazaar node is not online or is unreachable we construct an offline message and store it in the network for retrieval at a later date. The message to send is signed and encrypted, stored in offline message storage, then the pointer to this content is published to the closest peers in the DHT as well as the push nodes.
+If another OpenBazaar node is not online or is unreachable we construct an offline message and store it on the network for retrieval at a later date. The message to send is signed and encrypted, stored in the offline message storage, then the pointer to this content is published to the closest peers in the DHT as well as the push nodes.
 
 #### Setup OpenBazaar HTTP Gateway
 OpenBazaar listens on port 4002 as an http server listening for multiplexed API calls for several endpoints. These endpoints route calls to handlers to process the requests.
@@ -331,19 +331,19 @@ The following loop continues to run until the server is shut down and acts as th
 #### Wallet Functionality
 If the wallet has not been disabled the server will conduct a few things:
 
-- Create wallet and transaction listeners for all wallets found in the MultiWallet
-- Kick off the `StatusUpdater`
-- Start all the wallets in the multiwallet
-- Start the `resyncManager`
+- Create wallet and transaction listeners for all wallets found in the MultiWallet.
+- Kick off the `StatusUpdater`.
+- Start all the wallets in the multiwallet.
+- Start the `resyncManager`.
 
 #### OpenBazaar Network Service
 The OpenBazaar network service handles the custom OpenBazaar protocol (`/openbazaar/app/<version>`) and stream communications with other nodes. This includes sending message and requests.
 
 #### Message Retriever
-Message Retriever fetches offline messages from the network periodically. It will ask the `push Nodes` for messages every 10 minutes and from the DHT every 60 minutes.
+The Message Retriever fetches offline messages from the network periodically. It will ask the `push Nodes` for messages every 10 minutes and from the DHT every 60 minutes.
 
 #### Pointer Republisher
-The `Pointer Republisher` republishes content every 12 hours. The republisher loops through all pointers we are tracking and republishes them if they have not expired. For offline messages, any message that is newer than 30 days will be republished to the push nodes. If they have expired then they are deleted from the pointers table.
+The `Pointer Republisher` republishes content every 12 hours. The Republisher loops through all pointers we are tracking and republishes them if they have not expired. For offline messages, any message that is newer than 30 days will be republished to the push nodes. If they have expired then they are deleted from the pointers table.
 
 Moderator messages don't ever expire and continue to get published every 12 hours.
 
