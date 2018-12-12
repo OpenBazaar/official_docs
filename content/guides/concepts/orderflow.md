@@ -5,9 +5,13 @@ menu:
         parent: concepts
 ---
 
+
 # Order Flow
 
 This document outlines the order flow for OpenBazaar transactions.
+
+![OpenBazaar Order Flow](/assets/order-flow.png)
+
 
 ## Optimal Order Path
 
@@ -656,9 +660,7 @@ Direct offline transaction: the funds are sent to a 2-of-3 multisignature escrow
 
 Moderated transaction: the funds are sent to a 2-of-3 multisignature escrow address, with the moderator as the 3rd party.
 
-## TODO
-
-- Fees and Dust Limits
+## Fees and Dust Limits
 
 Fees can reduce an offline payment, dispute payment, or a refund below the dust level, which means the user will never receive those funds. This is mostly prevented by a server rule that multisig payments must be at least 4 times larger than the current fee.
 
@@ -667,6 +669,7 @@ Fees can change, however. It’s possible for a $5 order to be allowed when fees
 More information on fees can be found in this doc:
 
 https://docs.google.com/document/d/1-pydZ6CXZl2KNyTYWFXBBvqlzUTtWiEFNjEkaz8iFWg/edit?usp=sharing
+
 
 | State |Code | Details | Can be Changed From | Can be Changed To |
 |---|---|---|---|---|
