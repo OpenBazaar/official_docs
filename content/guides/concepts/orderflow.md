@@ -662,12 +662,8 @@ https://docs.google.com/document/d/1-pydZ6CXZl2KNyTYWFXBBvqlzUTtWiEFNjEkaz8iFWg/
 
 | State |Code | Details | Can be Changed From | Can be Changed To |
 |---|---|---|---|---|
-| PENDING | 0 | Order has been funded and a message has been sent to the vendor, but they were unreachable. The vendor must accept or decline the order when they see it. | AWAITING_PAYMENT | AWAITING_FULFILLMENT
-CANCELLED
-DECLINED
-DISPUTED |
-| AWAITING_PAYMENT | 1 | Waiting for the buyer to fund the payment address. | New Order | PENDING
-AWAITING_FULFILLMENT |
+| PENDING | 0 | Order has been funded and a message has been sent to the vendor, but they were unreachable. The vendor must accept or decline the order when they see it. | AWAITING_PAYMENT | AWAITING_FULFILLMENT, CANCELLED, DECLINED, DISPUTED |
+| AWAITING_PAYMENT | 1 | Waiting for the buyer to fund the payment address. | New Order | PENDING, AWAITING_FULFILLMENT |
 
 AWAITING_PICKUP
 2
