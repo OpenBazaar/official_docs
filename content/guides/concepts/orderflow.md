@@ -50,13 +50,21 @@ The following is a detailed list of purchase-related API calls.
 
 | Call | Description |
 |:-----|:--------|
-| `wallet/estimatefee`         |  Get an estimate of the fee for this purchase.        |
-| `wallet/spend`         |  Pay for an order.      |
-| `ob/purchase`         |  Create an order.        |
-| `ob/ordercancel`        |  Buyer cancels a funded order the seller hasn’t accepted yet.       |
-| `ob/orderconfirmation`         |  Accept or Reject a funded order.        |
-| `ob/orderfulfillment`         |  Fulfill an order.        |
-| `ob/refund`        |  Send funds back to the buyer if the order isn't fulfilled yet.        |
+| `wallet/estimatefee` | Get an estimate of the fee for this purchase. |
+| `wallet/spend` | Send funds to an address. |
+| `wallet/orderspend` | Pay for an order. |
+| `ob/estimatetotal` | Returns estimated todal, including fee. |
+| `ob/purchase` | Create an order. |
+| `ob/ordercancel` | Buyer cancels a funded order the seller hasn’t accepted yet. |
+| `ob/refund` | Send funds back to the buyer if the order isn't fulfilled yet. |
+| `ob/orderconfirmation` |  Accept or Reject a funded order. |
+| `ob/orderfulfillment` | Fulfill an order. |
+| `ob/ordercompletion` | Buyer completes the order. |
+| `ob/opendispute` | Dispute an order. |
+| `ob/closedispute` | Send a resolution to a dispute. |
+| `ob/releasefunds` | Accept a dispute resolution. |
+| `ob/releaseescrow` | Release funds to the seller after the order has timed out. |
+
 
 ### Types
 **Strings**: Strings should have a character max. \
