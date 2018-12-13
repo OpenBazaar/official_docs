@@ -27,8 +27,6 @@ Funds are transferred to the seller immediately for direct orders.
 Multisig orders (the seller node was unreachable at the moment of purchase, or the order is moderated) hold their funds in escrow until the order is completed (ob/ordercompletion), refunded, disputed and the dispute is resolved, or after the order has timed out and ob/releaseescrow is called.
 
 
-![OpenBazaar Order Flow](/assets/order-flow.png)
-
 ### Unreachable Nodes and Order States
 
 It is important to note that when a node is unreachable (offline or unable to receive incoming messages), it may not receive messages from the other party to start or change the state of an order.
