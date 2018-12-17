@@ -166,7 +166,7 @@ If the total of the purchase is not more than 4x the current transaction fee, th
 
 This is different from most eCommerce platforms, which only create an order when it’s paid for. It works this way because the user may not have sufficient funds at the moment of purchase, and could fund that order at any time in the future, even years later.
 
-Orders are also independent of their listings once they are created. Modifying or deleting a listing will not affect existing orders for it.
+Orders are independent of their listings once they are created. Modifying or deleting a listing will not affect existing orders for it.
 
 **Data Sent (Listing Types: PHYSICAL_GOOD, DIGITAL_GOOD, SERVICE)**
 
@@ -318,9 +318,9 @@ If the seller is reachable, the order will move to the AWAITING_FULFILLMENT stat
 
 If the seller is unreachable, the order will move to the PENDING state.
 
-For multi-signature payments, the funds in the 2-of-3 address can be moved by the seller on their own after roughly 45 days (measured by blocks), normally they'd do so to move them to an address they control ("claiming" the payment).
+For multi-signature payments, the funds in the 2-of-3 address can be "claimed" by the seller and moved to their own OB wallet after roughly 45 days (measured by blocks) if the order is in a FULFILLED state.
 
-The `ob/releaseescrow` API will reset the timer for a new 45 days if the order is disputed (ie: the server will reject calls to `ob/releaseescrow`), but this doesn’t change the original payment. It can be claimed directly by the seller if they use an external wallet.
+The `ob/releaseescrow` API will reset the timer for a new 45 days if the order is disputed (ie: the server will reject calls to `ob/releaseescrow`).
 
 **Note:** This call was added in version 2.3. Earlier version use the wallet/spend endpoint instead.
 
@@ -369,6 +369,8 @@ If a `RefundAddress` was provided with the payment, the funds will be moved to t
 
 This will subtract a NORMAL fee from the transaction (ie: the buyer is refunded their payment not including the original fee, minus a fee to move the funds back to them).
 
+This call is only needed when the buyer's node was not able to make a direct connection to the seller's node. The seller's node may be offline, or is otherwise unable to receive data about the payment.
+
 **Data Sent**
 
 ```
@@ -391,9 +393,11 @@ Empty data is returned if successful.
 **INCOMING STATUS**: PENDING \
 **OUTGOING STATUS**: AWAITING_FULFILLMENT or DECLINED
 
-This will accept or reject the order. If it is accepted, it will move to the **AWAITING_FULFILLMENT** state.
+If the order is in the **PENDING** state (it has been funded but the seller has not accepted it yet), this will accept or reject the order. If it is accepted, it will move to the **AWAITING_FULFILLMENT** state.
 
 If it is rejected, it will move to the **DECLINED** state. The funds will be moved to the buyer’s wallet, after a NORMAL fee is subtracted from them.
+
+This call is only needed when an "offline" order is created due to the buyer's node not being able to connect directly to the seller's node. Listings that are out of date may have been purchased while the seller's node is unreachable, those purchases will stay in the PENDING state until the buyer cancels them or the seller accepts or rejects them.
 
 **Data Sent**
 
@@ -420,9 +424,7 @@ Empty data is returned if successful.
 **INCOMING STATUS**: AWAITING_FULFILLMENT \
 **OUTGOING STATUS**: FULFILLED
 
-This will trigger a 45 day timer on the order. After 45 days if the state of the order is still **FULFILLED** the seller will be able to call the `releaseescrow` API to change the state to **PAYMENT_FINALIZED** and claim the funds.
-
-The ability for the seller to retrieve the funds is a function of the transaction, it is possible for the seller to move the funds after 45 days manually using an external wallet for most coins.
+This will change the state of the order to FULFILLED, and will send a notification along with any additional fulfillment data to the buyer.
 
 **Data Sent (Physical Good)**
 
