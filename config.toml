@@ -40,6 +40,11 @@ weight = 4
 identifier = "api"
 name = "Commands & API"
 weight = 4
+[[menu.reference]]
+parent = "api"
+name = "openbazaar-go HTTP API (Postman)"
+url = "https://api.docs.openbazaar.org"
+weight = 50
 
 [[menu.reference]]
 identifier = "go_implementation"
