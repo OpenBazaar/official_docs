@@ -23,7 +23,7 @@ In particular, OpenBazaar is a complex system that aims to change a lot of thing
 
 If you are interacting [interacting with a running OpenBazaar server](/reference/api/http) programmatically, you’ll use OpenBazaar's API. It’s implemented in Golang.
 
-[View the API docs](https://api.openbazaar.org)
+[View the API docs](https://api.docs.openbazaar.org/)
 
 
 ### Go Implementation
