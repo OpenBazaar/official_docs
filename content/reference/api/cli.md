@@ -101,7 +101,7 @@ Help Options:
       -d, --datadir=              specify the data directory to be used
       -c, --authcookie=           turn on API authentication and use this specific cookie
       -u, --useragent=            add a custom user-agent field
-      -v, --verbose               print openbazaar logs to stdout
+      -v, --verbose               print OpenBazaar logs to stdout
           --torpassword=          Set the tor control password. This will override the tor password in
                                   the config.
           --tor                   Automatically configure the daemon to run as a Tor hidden service and
@@ -114,7 +114,7 @@ Help Options:
           --storage=              set the outgoing message storage option [self-hosted, dropbox]
                                   (default=self-hosted)
           --bitcoincash           use a Bitcoin Cash wallet in a dedicated data directory
-          --zcash=                use a ZCash wallet in a dedicated data directory. To use this you must
+          --zcash=                use a Zcash wallet in a dedicated data directory. To use this you must
                                   pass in the location of the zcashd binary.
 ```
 

@@ -39,8 +39,8 @@ The biggest and most active repositories we have today are:
 - https://github.com/OpenBazaar/openbazaar-desktop
 
 If you want to start contributing to the core of OpenBazaar, those repositories are
-a great place start. But the “Help Wanted” label exists in all of our
-repositories across the Github organization
+a great place to start. But the “Help Wanted” label exists in all of our
+repositories across the GitHub organization
 [OpenBazaar](https://github.com/OpenBazaar).
 
 
@@ -51,7 +51,7 @@ for lots of good documentation! However, we need a lot more help to write the
 awesome docs the project needs. If writing technical documentation is your area,
 we’d absolutely love your help!
 
-The best place to get started is by looking through the Github Issues at:
+The best place to get started is by looking through the GitHub Issues at:
 https://github.com/OpenBazaar/docs
 
 
@@ -87,7 +87,7 @@ design love.
 
 ### Issues / Triaging
 
-With lots of code come lots of Github Issues. We need YOU to help with
+With lots of code come lots of GitHub Issues. We need YOU to help with
 organizing all of this in some manner. We don’t yet have any proper resources
 for getting started with this. Get in touch if you can contribute a sense of
 extreme organization!
@@ -125,7 +125,7 @@ or feedback on your specific problem/idea.
 
 IPFS is ultimately about building better protocols, and we always welcome ideas
 and feedback on how to improve those protocols. Post feedback, issues, and
-proposals in the `specs` projects in our Github organizations or in
+proposals in the `specs` projects in our GitHub organizations or in
 [`ipfs/notes`](https://github.com/notes).
 
 - https://github.com/ipfs/specs
