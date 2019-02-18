@@ -32,7 +32,7 @@ $ go run openbazaard.go start
 *For more options in running the node, please refer to this [guide](/reference/api/cli).*
 
 ### Authentication
-When running on localhost (the default), the API is unauthenticated. You can enable authentication when starting the openbazaar daemon with the following command in the terminal:
+When running on localhost (the default), the API is unauthenticated. You can enable authentication when starting the OpenBazaar daemon with the following command in the terminal:
 
 ```
 $ go run openbazaard setapicreds
@@ -79,4 +79,4 @@ When the OpenBazaar server starts for the first time, it creates a public direct
 
 
 
-The first step is to create a public profile and set your private settings for the node. Creating a public facing profile will allow other users to see details such as display name, avatar, and header image when they visit your node. The addresss of your node or peerID can be retrieved by making a GET /ob/config call, or from the profile response. The settings allow you to set your preferred currency (to display prices), country, create a delivery etc; these setting are private and are not visible to the network.
+The first step is to create a public profile and set your private settings for the node. Creating a public facing profile will allow other users to see details such as display name, avatar, and header image when they visit your node. The address of your node or peerID can be retrieved by making a GET /ob/config call, or from the profile response. The settings allow you to set your preferred currency (to display prices), country, create a delivery etc; these settings are private and are not visible to the network.

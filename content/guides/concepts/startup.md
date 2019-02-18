@@ -42,7 +42,7 @@ There are many parameters that can be passed into the `start` command and this i
 - Regtest  (r) - OpenBazaar has a regtest network that is segregated from the mainnet users. This flag enables the regtest network.
 - DataDir (d) - Specify where the OpenBazaar data directory resides.
 - UserAgent (u) - Specify a custom user-agent field. (Default: /openbazaar-go:<version#>/)
-- Storage - Set the outgoing message store option default to self-hosted but you can choose dropbox.
+- Storage - Set the outgoing message store option default to self-hosted but you can choose Dropbox.
 
 ### Logging
 - LogLevel (l) - Set the logging level (can be debug, info, notice, warning).
