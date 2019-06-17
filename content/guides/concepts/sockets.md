@@ -230,9 +230,53 @@ This is received when the seller calls `orderfulfillment`.
 }
 ```
 
-#### Dispute Window Expiry
+#### Processing Error
 
-When an order reaches one of the dispute timeout warning intervals, a notification is sent to the buyer.
+If the seller's node has an error processing the order, the buyer will receive a notification with a type of `processingError`.
+
+```
+{
+  "notification": {
+    "notificationId": "QmT2LkRZHEZ8Sw7nPys35i5eKtBL4aZR34wiZSirTeemhi",
+    "orderId": "QmPDrJEzzz7XgKqgJoJfRis32T7uGpRK3EqTURCwB7CmUa",
+    "thumbnail": {
+      "small": "zb2rhXytP3KvSpk2w8uMNi8ApM6cEBkcSmAcEp4xuzJ3HXH8W",
+      "tiny": "zb2rhimYUmqHiXmPJ1FaAaZse8GvXC9mKSoHAPfbJpninVvqw"
+    },
+    "type": "processingError",
+    "vendorHandle": "",
+    "vendorId": "Qmdy44rwpPQ2opSJi9LjKSzChMgHXgdC5vPq5zfVUGNYbh"
+  }
+}
+```
+
+#### Dispute Window Timeout
+
+As the time remaining to dispute a moderated order shrinks, notifications will be sent with warnings.
+
+The `expiresIn` value is the amount of time left for the buyer to dispute the order, in seconds.
+
+```
+{
+  "notification": {
+    "expiresIn": 2400,
+    "notificationId": "QmRZUxKMxfVdMnwLjbMiqgwv2THrdxJpd4hVMatWb2fPb8",
+    "orderId": "QmXxQ96bBnz4iNk8vPz2EfTVjedmgorZ6mJBCgLiAh5Bic",
+    "thumbnail": {
+      "small": "zb2rhYxitqHK8QhfNDKdP2B7n1bME2g6mDjTNkUYswkADLrbh",
+      "tiny": "zb2rhWg7N5VmrAGJGi6ft3kxboY7fSBuc7XuwjWT2166nP5q6"
+    },
+    "type": "buyerDisputeTimeout"
+  }
+}
+```
+
+
+#### Dispute Window Expiring
+
+When an order that is currently being disputed reaches one of the dispute timeout warning intervals, a notification is sent to the buyer.
+
+The time remaining is shown in the `expiresIn` value, and is measured in seconds.
 
 ```
 {
@@ -254,7 +298,13 @@ When an order reaches one of the dispute timeout warning intervals, a notificati
 This notification is received after a seller calls the `ob/releaseescrow` API.
 
 ```
-TODO
+{
+  "notification": {
+    "notificationId": "QmchuNTmajxbBvYPC7Z6571UXBSDkStgaJZd5VsCKhyguc",
+    "orderId": "QmXxQ96bBnz4iNk8vPz2EfTVjedmgorZ6mJBCgLiAh5Bic",
+    "type": "vendorFinalizedPayment"
+  }
+}
 ```
 
 ### Seller Updates
@@ -307,6 +357,45 @@ This is received when the buyer calls `ob/ordercompletion`.
   }
 }
 ```
+
+#### Dispute Window Timeout
+
+When an order that is currently being disputed reaches one of the dispute timeout warning intervals, a notification is sent to the seller.
+
+The time remaining is shown in the `expiresIn` value, and is measured in seconds.
+
+```
+{
+  "notification": {
+    "expiresIn": 0,
+    "notificationId": "Qmdy1Zyz78kKUxGtyN7W5ubY8f8TA6MUTCRkjHX4fiAJXk",
+    "purchaseOrderId": "QmZco6HvZsXXFdXcRzJJnEBiYu2VrTvaVjNsebfsoapaev",
+    "thumbnail": {
+      "small": "zb2rhi1yEFMQAASTCoVnqH7VnkXuXmmcL6ny9Xyj9PPuUy8TF",
+      "tiny": "zb2rhoi51wi754mHPxFREJ6yZpehf914LVaMxUCGo5mhPZ7eZ"
+    },
+    "type": "vendorDisputeTimeout"
+  }
+}
+```
+
+#### Dispute Window Expiring
+
+```
+{
+  "notification": {
+    "expiresIn": 2592000,
+    "notificationId": "QmU9F8nhiDQ88oAR4eFiyH3iJKUYzfNkK1KuvJGoVujZBp",
+    "orderId": "QmcoKERsaetjQX3cF5YySXQHabh5bthvsrk9WxyuooRsH3",
+    "thumbnail": {
+      "small": "zb2rhnjzCRVpJKqNvVSmWGG9yJW5vN6kb7x3pLt6mhTpoCiSP",
+      "tiny": "zb2rhWtVHeuGumL5u11E7DDqwXMtHinPiAfKmh7kwJv17B5vz"
+    },
+    "type": "vendorDisputeExpiry"
+  }
+}
+```
+
 
 ### Buyer and Seller Updates
 
@@ -375,11 +464,37 @@ This is received when either the buyer or seller calls `ob/releasefunds`.
 }
 ```
 
+
 ### Moderator Updates
 
-#### Dispute Window Expired
+#### New Dispute
 
-This is received when the window to resolve a dispute has expired.
+When a new dispute has been opened on an order with this node as the moderator, it will send a dispute update notification.
+
+The disputer is the node that opened the dispute. The disputee is the other party.
+
+{
+  "notification": {
+    "buyer": "QmPvF2DMihJrFMxHM7paNv5oorwJwNXkSw7wvd1bTEDZAJ",
+    "disputeeHandle": "",
+    "disputeeId": "QmPvF2DMihJrFMxHM7paNv5oorwJwNXkSw7wvd1bTEDZAJ",
+    "disputerHandle": "",
+    "disputerId": "QmYgJuym4RuNcGxsH15PKyiqRdKFBvdUU4a3bLs2srw6Tc",
+    "notificationId": "QmWrgrvcU5wmHY4wA9bte7GGzZ6yuTXQUNecwCCsWBbY4A",
+    "orderId": "QmPP6bAAdKJnZqAoWFNp94AEKHnb8Nnknk2CX5uZ6hTqnG",
+    "thumbnail": {
+      "small": "zb2rhi1yEFMQAASTCoVnqH7VnkXuXmmcL6ny9Xyj9PPuUy8TF",
+      "tiny": "zb2rhoi51wi754mHPxFREJ6yZpehf914LVaMxUCGo5mhPZ7eZ"
+    },
+    "type": "disputeUpdate"
+  }
+}
+
+#### Dispute Window Expiring
+
+When a moderator has an open dispute, they receive periodic warnings about the time left for them to resolve the dispute.
+
+The time remaining is shown in the `expiresIn` value, and is measured in seconds.
 
 ```
 {
@@ -469,9 +584,7 @@ The API will return an `id`, each socket message that is a reply to the API will
 
 Incoming chat messages are delivered over sockets. The data is the same as the data returned from the `ob/chatmessages` API.
 
-### Message
-
-#### Normal Chat Message
+### Normal Chat Message
 
 Chat messages should never have a value for the subject unless they are associated with an order.
 
@@ -489,7 +602,7 @@ Chat messages should never have a value for the subject unless they are associat
 }
 ```
 
-#### Order Chat Message
+### Order Chat Message
 
 If a chat message has a value for `subject` it should be an orderId. This means the message is connected to that order.
 
@@ -507,9 +620,11 @@ If a chat message has a value for `subject` it should be an orderId. This means 
 }
 ```
 
-#### Typing
+### Typing
 
 A messageTyping message is an indicator the other party is currently typing.
+
+If `subject` has a value, it should be the `orderId` of an order. That indicates it is part of a chat conversation that belongs to that order.
 
 ```
 {
@@ -521,12 +636,21 @@ A messageTyping message is an indicator the other party is currently typing.
 }
 ```
 
-## Moderator
+### Chat Read 
 
-A moderator node receives this notification when someone adds them as a moderator.
+When a chat message has been marked as read by the other party, the node will receive this notification.
+
+If `subject` has a value, it should be the `orderId` of an order. That indicates it is part of a chat conversation that belongs to that order.
+
 
 ```
-TODO
+{
+  "messageRead": {
+    "messageId": "Qmeopz9ya5EERUamKcPidc2wEqVU7EatVVnoVXGeF5SyPF",
+    "peerId": "QmYgJuym4RuNcGxsH15PKyiqRdKFBvdUU4a3bLs2srw6Tc",
+    "subject": ""
+  }
+}
 ```
 
 
@@ -554,6 +678,34 @@ This notification is recieved when the node is followed or unfollowed.
 }
 ```
 
+## Added as Moderator
+
+A moderator node receives this notification when another node adds them as a moderator.
+
+```
+{
+  "notification": {
+    "notificationId": "QmZZYP1PuGDQzCDT1iVAsbKGP1CMRDDuKLAPbFVsRZ4HwW",
+    "peerId": "QmPvF2DMihJrFMxHM7paNv5oorwJwNXkSw7wvd1bTEDZAJ",
+    "type": "moderatorAdd"
+  }
+}
+```
+
+## Removed as Moderator
+
+A moderator receives this notification when a node that had added them as a moderator removes them.
+
+```
+{
+  "notification": {
+    "notificationId": "QmZA3pkAPVUcbCEG1q77s8ij1QfnJCP9xWUU5dHWJrdhqi",
+    "peerId": "QmYgJuym4RuNcGxsH15PKyiqRdKFBvdUU4a3bLs2srw6Tc",
+    "type": "moderatorRemove"
+  }
+}
+```
+
 ## Status
 
 Status messages are received to show the state of publishing updates.
@@ -568,3 +720,8 @@ Status messages are received to show the state of publishing updates.
   "status": "publish complete"
 }
 ```
+
+
+## Premarshal Notifier
+
+A notification exists with the type `premarshalNotifier`, it should not be used. It's a hack to pass byte data through a socket message.
