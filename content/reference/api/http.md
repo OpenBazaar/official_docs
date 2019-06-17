@@ -96,3 +96,9 @@ When the OpenBazaar server starts for the first time, it generates a unique iden
 The first step after generating an identity is to create a public profile and configure your private settings for the node. Creating a public facing profile will allow other users to see details such as display name, avatar, and header image when they visit your node. This can be done with `POST /ob/profile` to create and `PUT /ob/profile` to update. The Peer ID can be retrieved by calling `GET /ob/config`. The settings allow you to set your preferred currency (to display prices), country, create a delivery etc; these setting are private and are not visible to the network. This can be done with `POST /ob/settings` to create or `PUT /ob/settings` to update.
 
 For a full list of API endpoints, please review the current HTTP API documentation available at https://api.docs.openbazaar.org.
+
+### Timestamps in the API
+The HTTP API returns RFC3339-compliant timestamps which typically take the following forms:
+
+ - without sub-second precision `2017-08-17T04:52:19Z`
+ - with sub-second precision `2017-08-17T04:52:19.00000001Z` which may have an inconsistent number of places after the decimal
