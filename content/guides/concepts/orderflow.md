@@ -360,10 +360,10 @@ If a `memo` is sent, it will be used. If not, the title of the listing will be r
 ### **POST** ob/ordercancel
 **Buyer cancels the order**
 
-**INCOMING STATUS**: PENDING \
+**INCOMING STATUS**: PENDING, PROCESSING_ORDER \
 **OUTGOING STATUS**: CANCELLED
 
-If the order is in the **PENDING** state (it has been funded but the seller has not accepted it yet) the buyer can cancel it. This will move the funds back to their wallet and change the state to **CANCELLED**.
+If the order is in the **PENDING** state (it has been funded but the seller has not accepted it yet) or the **PROCESSING_ERROR** state and has been funded, the buyer can cancel it. This will move the funds back to their wallet and change the state to **CANCELLED**.
 
 If a `RefundAddress` was provided with the payment, the funds will be moved to that address.
 
@@ -680,11 +680,11 @@ https://docs.google.com/document/d/1-pydZ6CXZl2KNyTYWFXBBvqlzUTtWiEFNjEkaz8iFWg/
 | PARTIALLY_FULFILLED | 4 | Seller has fulfilled part of the order. This is part of the cart functionality that is currently not used by any known client implementations. | AWAITING_FULFILLMENT | FULFILLED, REFUNDED, DISPUTED |
 | FULFILLED | 5 | Seller has fulfilled the order. | AWAITING_FULFILLMENT, PARTIALLY_FULFILLED | COMPLETED, PAYMENT_FINALIZED, DISPUTED |
 | COMPLETED | 6 | Buyer has completed the order and left a review. | FULFILLED, AWAITING_PICKUP, RESOLVED, PAYMENT_FINALIZED |
-| CANCELLED | 7 | Buyer canceled the order (this applies to offline order only). | PENDING | |
+| CANCELLED | 7 | Buyer canceled the order (this applies to offline orders only). | PENDING, PROCESSING_ORDER | |
 | DECLINED | 8 | Seller declined to confirm the order (this applies to offline order only). | PENDING | |
 | REFUNDED | 9 | Seller refunded the order. | AWAITING_FULFILLMENT, PARTIALLY_FULFILLED | |
 | DISPUTED | 10 | The order is being disputed by the buyer or seller. | Buyer: PENDING, FULFILLED, AWAITING_FULFILLMENT, PARTIALLY_FULFILLED, FULFILLED, PROCESSING_ERROR <br><br>Seller: PARTIALLY_FULFILLED, FULFILLED | DECIDED, PAYMENT_FINALIZED |
 | DECIDED | 11 | The moderator has resolved the dispute. | DISPUTED | RESOLVED |
 | RESOLVED | 12 | The winning party has accepted the dispute and it is now complete. After the buyer leaves a review the state should be set to COMPLETE. | DECIDED | COMPLETED |
 | PAYMENT_FINALIZED | 13 | Escrow has been released after the timeout period has expired. After the buyer leaves a review the state should be set to COMPLETE. | FULFILLED, DISPUTED | COMPLETED |
-| PROCESSING_ERROR | 14 | This state is only used for offline orders. If a processing error occurred with an open connection between buyer and seller the seller's node automatically rejects the order. |  | DISPUTED |
+| PROCESSING_ERROR | 14 | This state is only used for offline orders. If a processing error occurred with an open connection between buyer and seller the seller's node automatically rejects the order. |  | CANCELLED, DISPUTED |
