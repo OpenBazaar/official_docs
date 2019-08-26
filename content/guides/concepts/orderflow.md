@@ -656,7 +656,7 @@ The location of a user’s funds depend on the state of the order, and whether i
 
 Direct online transaction: the funds are sent directly to an address the seller controls.
 
-Direct offline transaction: the funds are sent to a 2-of-3 multisignature escrow address, with the OB server as the 3rd party.
+Direct offline transaction: the funds are sent to a 1-of-2 multisignature escrow address, with the OB server as the 2rd party. The funds are moved to an address controlled by the seller's wallet after the seller accepts the order. If the seller rejects the order, the funds are moved back to the buyer.
 
 Moderated transaction: the funds are sent to a 2-of-3 multisignature escrow address, with the moderator as the 3rd party.
 
