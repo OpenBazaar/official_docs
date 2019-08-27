@@ -55,11 +55,11 @@ The following is a detailed list of purchase-related API calls.
 | `wallet/estimatefee` | Get an estimate of the fee for this purchase. |
 | `wallet/spend` | Send funds to an address. |
 | `wallet/orderspend` | Pay for an order. |
-| `ob/estimatetotal` | Returns estimated todal, including fee. |
+| `ob/estimatetotal` | Returns estimated total, including fee. |
 | `ob/purchase` | Create an order. |
 | `ob/ordercancel` | Buyer cancels a funded order the seller hasn’t accepted yet. |
 | `ob/refund` | Send funds back to the buyer if the order isn't fulfilled yet. |
-| `ob/orderconfirmation` |  Accept or Reject a funded order. |
+| `ob/orderconfirmation` | Accept or Reject a funded order. |
 | `ob/orderfulfillment` | Fulfill an order. |
 | `ob/ordercompletion` | Buyer completes the order. |
 | `ob/opendispute` | Dispute an order. |
@@ -322,7 +322,7 @@ For multi-signature payments, the funds in the 2-of-3 address can be "claimed" b
 
 The `ob/releaseescrow` API will reset the timer for a new 45 days if the order is disputed (ie: the server will reject calls to `ob/releaseescrow`).
 
-**Note:** This call was added in version 2.3. Earlier version use the wallet/spend endpoint instead.
+**Note:** This call was added in version 2.3. Earlier versions use the wallet/spend endpoint instead.
 
 **Data Sent**
 
@@ -589,7 +589,7 @@ Empty data is returned if successful.
 
 This call will create a payout decision in a dispute. Once the decision is made, either the buyer or seller must accept it by calling `ob/releasefunds` to move the order out of the **DECIDED** state.
 
-It is important to note that the actual payout to the buyer and seller is reduced by both the network fee and the the moderator's fee.
+It is important to note that the actual payout to the buyer and seller is reduced by both the network fee and the moderator's fee.
 
 The fee to move the funds is subtracted from the funds in the order first. After that, the moderator's fee is subtracted, and the percentages are applied to the remaining funds.
 
