@@ -656,13 +656,13 @@ The location of a user’s funds depend on the state of the order, and whether i
 
 Direct online transaction: the funds are sent directly to an address the seller controls.
 
-Direct offline transaction: the funds are sent to a 1-of-2 multisignature escrow address, with the OB server as the 2rd party. The funds are moved to an address controlled by the seller's wallet after the seller accepts the order. If the seller rejects the order, the funds are moved back to the buyer.
+Direct offline transaction: the funds are sent to a 1-of-2 multisignature escrow address. The funds are moved to an address controlled by the seller's wallet after the seller accepts the order. If the seller rejects the order, the funds are moved back to the buyer.
 
 Moderated transaction: the funds are sent to a 2-of-3 multisignature escrow address, with the moderator as the 3rd party.
 
 ## Fees and Dust Limits
 
-Fees can reduce an offline payment, dispute payment, or a refund below the dust level, which means the user will never receive those funds. This is mostly prevented by a server rule that multisig payments must be at least 4 times larger than the current fee.
+Fees can reduce an offline payment, dispute payment, rejection or a refund below the dust level, which means the user will never receive those funds. This is mostly prevented by a server rule that multisig payments must be at least 4 times larger than the current fee.
 
 Fees can change, however. It’s possible for a $5 order to be allowed when fees are $1, but when a refund is issued the fee is now $6, and the refund fails.
 
